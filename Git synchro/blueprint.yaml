@@ -12,4 +12,14 @@ resources:
     properties:
       image: PhotonOS
       flavor: Small
+      networks:
+        - network: '${resource.Cloud_Network_1.id}'
+  Cloud_Network_1:
+    type: Cloud.Network
+    metadata:
+      layoutPosition:
+        - 1
+        - 0
+    properties:
+      networkType: existing
 
