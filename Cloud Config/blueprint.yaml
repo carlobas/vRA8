@@ -1,0 +1,69 @@
+# CCG
+# CloudConfig (cloud-init) demo. Use only with Cloud providers, no vSphere
+name: CloudConfig
+formatVersion: 1
+version: 1.1
+inputs:
+  hostname:
+    type: string
+    description: Hostname for this VM
+    title: Hostname
+  user:
+    type: string
+    description: User used for SSH
+    default: demouser
+    title: SSH user
+  password:
+    type: string
+    description: Password for SSH user
+    title: SSH user password
+    pattern: '[a-z0-9A-Z@#$]+'
+    encrypted: false
+  sshport:
+    type: integer
+    title: SSH Port
+    description: Change default ssh port (between 22 and 1024)
+    default: 22
+    minimum: 22
+    maximum: 1024
+resources:
+  Cloud_Machine_1:
+    type: Cloud.Machine
+    metadata:
+      layoutPosition:
+        - 0
+        - 0
+    properties:
+      image: AWSUbuntu
+      flavor: Small
+      constraints:
+        - tag: 'env:Cloud'
+      cloudConfig: |
+        #cloud-config
+        hostname: ${input.hostname}
+
+        users:
+          - name: ${input.user}        
+            sudo: ['ALL=(ALL) NOPASSWD:ALL']
+            groups: sudo
+            shell: /bin/bash
+        runcmd:
+          - PASS=${input.password}     
+          - USER=${input.user}
+          - echo $USER:$PASS | /usr/sbin/chpasswd
+          - sed -i "s/PasswordAuthentication no/PasswordAuthentication yes/g" /etc/ssh/sshd_config
+          - sed -i "s/Port 22/Port ${input.sshport}/g" /etc/ssh/sshd_config
+          - service ssh restart
+      networks:
+        - network: '${resource.Cloud_Network_1.id}'
+  Cloud_Network_1:
+    type: Cloud.Network
+    metadata:
+      layoutPosition:
+        - 1
+        - 0
+    properties:
+      networkType: existing
+      constraints:
+        - tag: 'nettype:Management'
+
