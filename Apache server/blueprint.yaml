@@ -1,0 +1,68 @@
+# CCG 
+# Ansible integration demo
+name: Ansible integration
+version: 1
+formatVersion: 1
+inputs:
+  size:
+    type: string
+    enum:
+      - Large
+      - Medium
+      - Small
+    description: Select instance size
+    default: Small
+    title: Instance Size
+  environment:
+    type: string
+    enum:
+      - 'env:Development'
+      - 'env:Production'
+      - 'env:Test'
+    description: Select environment to deploy
+    default: 'env:Development'
+    title: Environment
+resources:
+  Cloud_Ansible_1:
+    type: Cloud.Ansible
+    metadata:
+      layoutPosition:
+        - 0
+        - 1
+    properties:
+      host: '${resource.Cloud_vSphere_Machine_1.*}'
+      osType: linux
+      account: Iberia.local ansible
+      username: root
+      password: 5H84NU!92/_
+      playbooks:
+        provision:
+          - /root/playbooks/linux-apache.yml
+      groups:
+        - vRA8
+  Cloud_vSphere_Machine_1:
+    type: Cloud.vSphere.Machine
+    metadata:
+      layoutPosition:
+        - 0
+        - 2
+    properties:
+      folderName: Howarts Cloud
+      image: CoreOS
+      flavor: '${input.size}'
+      constraints:
+        - tag: '${input.environment}'
+      networks:
+        - network: '${resource.Cloud_vSphere_Network_1.id}'
+          assignment: static
+  Cloud_vSphere_Network_1:
+    type: Cloud.vSphere.Network
+    metadata:
+      layoutPosition:
+        - 1
+        - 0
+    properties:
+      networkType: existing
+      constraints:
+        - tag: 'nettype:Management'
+
