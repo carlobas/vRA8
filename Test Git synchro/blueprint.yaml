@@ -22,4 +22,6 @@ resources:
         - 0
     properties:
       networkType: existing
+      constraints:
+        - tag: 'nettype:Management'
 
