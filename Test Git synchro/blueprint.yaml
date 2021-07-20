@@ -11,7 +11,7 @@ resources:
         - 0
     properties:
       image: PhotonOS
-      flavor: Medium
+      flavor: Small
       networks:
         - network: '${resource.Cloud_Network_1.id}'
   Cloud_Network_1:
